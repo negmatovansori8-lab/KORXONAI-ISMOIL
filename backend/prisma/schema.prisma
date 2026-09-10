@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  role          String
+  isActive      Boolean        @default(true)
+  lastLogin     DateTime?
+  employeeId    String?        @unique
+  employee      Employee?      @relation(fields: [employeeId], references: [id])
+  notifications Notification[]
+  assignedTasks Task[]         @relation("TaskAssignee")
+  createdTasks  Task[]         @relation("TaskCreator")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Department {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  code        String     @unique
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+}
+
+model Employee {
+  id            String         @id @default(uuid())
+  code          String         @unique
+  firstName     String
+  lastName      String
+  position      String
+  departmentId  String
+  department    Department     @relation(fields: [departmentId], references: [id])
+  baseSalary    Float
+  experienceYrs Int            @default(0)
+  status        String         @default("ACTIVE")
+  hireDate      DateTime
+  phone         String?
+  performance   Float          @default(80)
+  user          User?
+  payrolls      Payroll[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Payroll {
+  id                 String   @id @default(uuid())
+  employeeId         String
+  employee           Employee @relation(fields: [employeeId], references: [id])
+  period             String
+  baseSalary         Float
+  bonus              Float    @default(0)
+  performancePercent Float
+  reward             Float    @default(0)
+  deduction          Float    @default(0)
+  netSalary          Float
+  paidAt             DateTime?
+  createdAt          DateTime @default(now())
+
+  @@unique([employeeId, period])
+}
+
+model FinanceTransaction {
+  id          String           @id @default(uuid())
+  type        String
+  incomeCat   String?
+  expenseCat  String?
+  amount      Float
+  occurredAt  DateTime
+  description String
+  reference   String?
+  createdAt   DateTime         @default(now())
+
+  @@index([occurredAt, type])
+}
+
+model Investment {
+  id        String   @id @default(uuid())
+  name      String
+  amount    Float
+  startedAt DateTime
+  status    String
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Loan {
+  id        String     @id @default(uuid())
+  lender    String
+  principal Float
+  remaining Float
+  ratePct   Float
+  startedAt DateTime
+  dueAt     DateTime
+  status    String     @default("ACTIVE")
+  createdAt DateTime   @default(now())
+}
+
+model Well {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  location    String
+  status      String       @default("ACTIVE")
+  capacityBpd Float
+  productions Production[]
+  createdAt   DateTime     @default(now())
+}
+
+model Production {
+  id             String           @id @default(uuid())
+  wellId         String
+  well           Well             @relation(fields: [wellId], references: [id])
+  occurredAt     DateTime
+  plannedBarrels Float
+  actualBarrels  Float
+  status         String
+  notes          String?
+  createdAt      DateTime         @default(now())
+
+  @@index([occurredAt])
+}
+
+model Sale {
+  id          String   @id @default(uuid())
+  customer    String
+  volumeBbl   Float
+  pricePerBbl Float
+  amount      Float
+  soldAt      DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([soldAt])
+}
+
+model WarehouseItem {
+  id        String               @id @default(uuid())
+  sku       String               @unique
+  name      String
+  category  String
+  unit      String
+  quantity  Float
+  minStock  Float
+  location  String
+  movements WarehouseMovement[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+}
+
+model WarehouseMovement {
+  id         String        @id @default(uuid())
+  itemId     String
+  item       WarehouseItem @relation(fields: [itemId], references: [id])
+  type       String
+  quantity   Float
+  occurredAt DateTime
+  reference  String?
+  note       String?
+  createdAt  DateTime      @default(now())
+
+  @@index([occurredAt])
+}
+
+model Equipment {
+  id              String          @id @default(uuid())
+  code            String          @unique
+  name            String
+  type            String
+  status          String          @default("OPERATIONAL")
+  lastMaintenance DateTime?
+  nextMaintenance DateTime?
+  createdAt       DateTime        @default(now())
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      String       @default("OPEN")
+  priority    String       @default("MEDIUM")
+  dueAt       DateTime?
+  assigneeId  String?
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creatorId   String
+  creator     User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model DailyReport {
+  id         String   @id @default(uuid())
+  date       DateTime
+  authorId   String
+  summary    String
+  production Float
+  incidents  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

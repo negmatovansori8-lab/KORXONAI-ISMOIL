@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(201, 151, 42, 0.12), transparent 50%),
+    radial-gradient(900px 500px at 100% 0%, rgba(20, 184, 166, 0.08), transparent 45%),
+    #07090c;
+  color: #e8edf4;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center gap-2 rounded-xl border border-white/10 bg-oil-800 px-3 py-2 text-xs text-white/75 hover:border-gold-500/40 hover:text-white;
+}
+
+.btn-gold {
+  @apply inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-gold-400 to-amber-600 px-4 py-2.5 text-sm font-medium text-oil-950 shadow-glow hover:brightness-110;
+}
+
+input,
+select,
+textarea {
+  @apply outline-none;
+}
+
+.oil-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
