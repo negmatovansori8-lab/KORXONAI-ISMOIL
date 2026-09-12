@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { authenticate, signToken } from "../middleware/auth";
 import { audit } from "../middleware/error";
+import { Role } from "../types/roles";
 
 export const authRouter = Router();
 
@@ -31,7 +32,7 @@ authRouter.post("/login", async (req, res) => {
   const token = signToken({
     id: user.id,
     email: user.email,
-    role: user.role,
+    role: user.role as Role,
     employeeId: user.employeeId,
   });
 

@@ -1,4 +1,4 @@
-import { env } from "./config/env";
+import { env } from "../config/env";
 import fs from "fs";
 
 fs.mkdirSync(env.backupDir, { recursive: true });
