@@ -8,7 +8,7 @@ services:
     rootDir: backend
     plan: free
     buildCommand: npm install --include=dev && npx prisma generate && npm run build
-    startCommand: npx prisma migrate deploy && node dist/src/index.js
+    startCommand: npx prisma migrate deploy && npx tsx src/index.ts
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
